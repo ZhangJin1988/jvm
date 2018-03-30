@@ -8,10 +8,129 @@ import java.util.HashMap;
 public class PermTest {
 
     /**
-     * -XX:PermSize=1m  -XX:MaxPermSize=2m  -XX:+PrintGCDetails
+     * 针对jdk1.8
+     * -XX:MetaspaceSize=1m  -XX:MaxMetaspaceSize=2m  -XX:+PrintGCDetails
      * jdk1.8中 一直没有内存溢出
      *   1.8没有永久区的概率 多次执行后的GC日志 待分析
      *  几乎没有变化
+     *
+     *  jdk1.8的元数据区直接就在内存中 所以不存在 溢出 设置MaxPermSize不起作用
+     *
+     *  溢出了 1.7的设置参数 是不起作用的
+     *
+     *  java.lang.OutOfMemoryError: Metaspace
+     *
+     *
+     * /Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/bin/java -XX:MetaspaceSize=1m -XX:MaxMetaspaceSize=2m -XX:+PrintGCDetails -Dfile.encoding=UTF-8 -classpath /Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/charsets.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/deploy.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/ext/cldrdata.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/ext/dnsns.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/ext/jaccess.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/ext/jfxrt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/ext/localedata.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/ext/nashorn.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/ext/sunec.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/ext/sunjce_provider.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/ext/sunpkcs11.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/ext/zipfs.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/javaws.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/jce.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/jfr.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/jfxswt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/jsse.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/management-agent.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/plugin.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/resources.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/jre/lib/rt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/lib/ant-javafx.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/lib/dt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/lib/javafx-mx.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/lib/jce.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/lib/jconsole.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/lib/packager.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/lib/rt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/lib/sa-jdi.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_73.jdk/Contents/Home/lib/tools.jar:/Users/zhangjin/myCode/learn/jvm/output:/Users/zhangjin/myCode/learn/jvm/lib/cglib-nodep-3.2.6.jar:/Users/zhangjin/myCode/learn/jvm/lib/asm-3.3.1.jar:/Users/zhangjin/myCode/learn/jvm/lib/cglib-2.2.2.jar com.jvm.study3.PermTest
+     [GC (Metadata GC Threshold) [PSYoungGen: 2621K->336K(76288K)] 2621K->336K(251392K), 0.0010928 secs] [Times: user=0.01 sys=0.00, real=0.01 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 336K->0K(76288K)] [ParOldGen: 0K->207K(114176K)] 336K->207K(190464K), [Metaspace: 1801K->1801K(1056768K)], 0.0023315 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(113152K)] 207K->207K(227328K), 0.0005104 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(113152K)] [ParOldGen: 207K->203K(210432K)] 207K->203K(323584K), [Metaspace: 1801K->1801K(1056768K)], 0.0037142 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(131584K)] 203K->203K(342016K), 0.0004108 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(131584K)] [ParOldGen: 203K->203K(319488K)] 203K->203K(451072K), [Metaspace: 1801K->1801K(1056768K)], 0.0033972 secs] [Times: user=0.01 sys=0.00, real=0.01 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(141312K)] 203K->203K(460800K), 0.0005677 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(141312K)] [ParOldGen: 203K->203K(485376K)] 203K->203K(626688K), [Metaspace: 1801K->1801K(1056768K)], 0.0043266 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(141312K)] 203K->203K(626688K), 0.0003687 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(141312K)] [ParOldGen: 203K->203K(655360K)] 203K->203K(796672K), [Metaspace: 1801K->1801K(1056768K)], 0.0026075 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(147968K)] 203K->203K(803328K), 0.0003464 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(147968K)] [ParOldGen: 203K->203K(884736K)] 203K->203K(1032704K), [Metaspace: 1801K->1801K(1056768K)], 0.0026799 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(147968K)] 203K->203K(1032704K), 0.0008719 secs] [Times: user=0.00 sys=0.01, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(147968K)] [ParOldGen: 203K->202K(1109504K)] 203K->202K(1257472K), [Metaspace: 1801K->1801K(1056768K)], 0.0027584 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(169984K)] 202K->202K(1279488K), 0.0002862 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(169984K)] [ParOldGen: 202K->202K(1395712K)] 202K->202K(1565696K), [Metaspace: 1801K->1801K(1056768K)], 0.0026438 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(170496K)] 202K->202K(1566208K), 0.0003996 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(170496K)] [ParOldGen: 202K->202K(1695232K)] 202K->202K(1865728K), [Metaspace: 1801K->1801K(1056768K)], 0.0026174 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(184832K)] 202K->202K(1880064K), 0.0002975 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(184832K)] [ParOldGen: 202K->202K(2060800K)] 202K->202K(2245632K), [Metaspace: 1801K->1801K(1056768K)], 0.0028203 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(184832K)] 202K->202K(2245632K), 0.0003767 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(184832K)] [ParOldGen: 202K->202K(2452480K)] 202K->202K(2637312K), [Metaspace: 1801K->1801K(1056768K)], 0.0029920 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(200192K)] 202K->202K(2652672K), 0.0003323 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(200192K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(2996736K), [Metaspace: 1801K->1801K(1056768K)], 0.0028855 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(200192K)] 202K->202K(2996736K), 0.0003621 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(200192K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(2996736K), [Metaspace: 1801K->1801K(1056768K)], 0.0024193 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(216576K)] 202K->202K(3013120K), 0.0003810 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(216576K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3013120K), [Metaspace: 1801K->1801K(1056768K)], 0.0024209 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(216576K)] 202K->202K(3013120K), 0.0003579 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(216576K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3013120K), [Metaspace: 1801K->1801K(1056768K)], 0.0022184 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(233472K)] 202K->202K(3030016K), 0.0003029 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(233472K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3030016K), [Metaspace: 1801K->1801K(1056768K)], 0.0022681 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(233984K)] 202K->202K(3030528K), 0.0003556 secs] [Times: user=0.00 sys=0.01, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(233984K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3030528K), [Metaspace: 1801K->1801K(1056768K)], 0.0025269 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(245248K)] 202K->202K(3041792K), 0.0002908 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(245248K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3041792K), [Metaspace: 1801K->1801K(1056768K)], 0.0022120 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(245248K)] 202K->202K(3041792K), 0.0003432 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(245248K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3041792K), [Metaspace: 1801K->1801K(1056768K)], 0.0024124 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(257024K)] 202K->202K(3053568K), 0.0003826 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(257024K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3053568K), [Metaspace: 1801K->1801K(1056768K)], 0.0028548 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(257024K)] 202K->202K(3053568K), 0.0004989 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(257024K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3053568K), [Metaspace: 1801K->1801K(1056768K)], 0.0028055 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(269824K)] 202K->202K(3066368K), 0.0004006 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(269824K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3066368K), [Metaspace: 1801K->1801K(1056768K)], 0.0026147 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(269824K)] 202K->202K(3066368K), 0.0004647 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(269824K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3066368K), [Metaspace: 1801K->1801K(1056768K)], 0.0025636 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(283648K)] 202K->202K(3080192K), 0.0006156 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(283648K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3080192K), [Metaspace: 1801K->1801K(1056768K)], 0.0027917 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(283648K)] 202K->202K(3080192K), 0.0004877 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(283648K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3080192K), [Metaspace: 1801K->1801K(1056768K)], 0.0029230 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(294912K)] 202K->202K(3091456K), 0.0003723 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(294912K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3091456K), [Metaspace: 1801K->1801K(1056768K)], 0.0028008 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(295424K)] 202K->202K(3091968K), 0.0005829 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(295424K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3091968K), [Metaspace: 1801K->1801K(1056768K)], 0.0022632 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(307200K)] 202K->202K(3103744K), 0.0004433 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(307200K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3103744K), [Metaspace: 1801K->1801K(1056768K)], 0.0024489 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(307200K)] 202K->202K(3103744K), 0.0003674 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(307200K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3103744K), [Metaspace: 1801K->1801K(1056768K)], 0.0022450 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(320000K)] 202K->202K(3116544K), 0.0005145 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(320000K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3116544K), [Metaspace: 1801K->1801K(1056768K)], 0.0024536 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(320000K)] 202K->202K(3116544K), 0.0004960 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(320000K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3116544K), [Metaspace: 1801K->1801K(1056768K)], 0.0024190 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(334336K)] 202K->202K(3130880K), 0.0003752 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(334336K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3130880K), [Metaspace: 1801K->1801K(1056768K)], 0.0021355 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(334336K)] 202K->202K(3130880K), 0.0006069 secs] [Times: user=0.00 sys=0.01, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(334336K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3130880K), [Metaspace: 1801K->1801K(1056768K)], 0.0030018 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(347648K)] 202K->202K(3144192K), 0.0005509 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(347648K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3144192K), [Metaspace: 1801K->1801K(1056768K)], 0.0031789 secs] [Times: user=0.01 sys=0.00, real=0.01 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(347648K)] 202K->202K(3144192K), 0.0005485 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(347648K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3144192K), [Metaspace: 1801K->1801K(1056768K)], 0.0027502 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(360960K)] 202K->202K(3157504K), 0.0004723 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(360960K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3157504K), [Metaspace: 1801K->1801K(1056768K)], 0.0028389 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(360960K)] 202K->202K(3157504K), 0.0004592 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(360960K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3157504K), [Metaspace: 1801K->1801K(1056768K)], 0.0024615 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(373760K)] 202K->202K(3170304K), 0.0003763 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(373760K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3170304K), [Metaspace: 1801K->1801K(1056768K)], 0.0021487 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(373760K)] 202K->202K(3170304K), 0.0004097 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(373760K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3170304K), [Metaspace: 1801K->1801K(1056768K)], 0.0021792 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(387072K)] 202K->202K(3183616K), 0.0004164 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(387072K)] [ParOldGen: 202K->202K(2796544K)] 202K->202K(3183616K), [Metaspace: 1801K->1801K(1056768K)], 0.0022059 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(387072K)] 202K->202K(3183616K), 0.0004539 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(387072K)] [ParOldGen: 202K->177K(2796544K)] 202K->177K(3183616K), [Metaspace: 1801K->1801K(1056768K)], 0.0020592 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(399872K)] 177K->177K(3196416K), 0.0004626 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(399872K)] [ParOldGen: 177K->177K(2796544K)] 177K->177K(3196416K), [Metaspace: 1801K->1801K(1056768K)], 0.0022386 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(399872K)] 177K->177K(3196416K), 0.0003768 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(399872K)] [ParOldGen: 177K->176K(2796544K)] 177K->176K(3196416K), [Metaspace: 1801K->1801K(1056768K)], 0.0021559 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(412672K)] 176K->176K(3209216K), 0.0003293 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(412672K)] [ParOldGen: 176K->176K(2796544K)] 176K->176K(3209216K), [Metaspace: 1801K->1801K(1056768K)], 0.0025485 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(413184K)] 176K->176K(3209728K), 0.0006047 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(413184K)] [ParOldGen: 176K->176K(2796544K)] 176K->176K(3209728K), [Metaspace: 1801K->1801K(1056768K)], 0.0027402 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(426496K)] 176K->176K(3223040K), 0.0005376 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(426496K)] [ParOldGen: 176K->176K(2796544K)] 176K->176K(3223040K), [Metaspace: 1801K->1801K(1056768K)], 0.0028444 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(426496K)] 176K->176K(3223040K), 0.0004672 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(426496K)] [ParOldGen: 176K->176K(2796544K)] 176K->176K(3223040K), [Metaspace: 1801K->1801K(1056768K)], 0.0024620 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(440320K)] 176K->176K(3236864K), 0.0006156 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(440320K)] [ParOldGen: 176K->176K(2796544K)] 176K->176K(3236864K), [Metaspace: 1801K->1801K(1056768K)], 0.0031019 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(440320K)] 176K->176K(3236864K), 0.0005506 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(440320K)] [ParOldGen: 176K->176K(2796544K)] 176K->176K(3236864K), [Metaspace: 1801K->1801K(1056768K)], 0.0029462 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(454656K)] 176K->176K(3251200K), 0.0005244 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(454656K)] [ParOldGen: 176K->176K(2796544K)] 176K->176K(3251200K), [Metaspace: 1801K->1801K(1056768K)], 0.0032919 secs] [Times: user=0.01 sys=0.00, real=0.01 secs]
+     [GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(454656K)] 176K->176K(3251200K), 0.0005168 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [Full GC (Metadata GC Threshold) [PSYoungGen: 0K->0K(454656K)] [ParOldGen: 176K->176K(2796544K)] 176K->176K(3251200K), [Metaspace: 1801K->1801K(1056768K)], 0.0026275 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     [GC (Last ditch collection) [PSYoungGen: 0K->0K(468480K)] 176K->176K(3265024K), 0.0003905 secs] [Times: user=0.01 sys=0.00, real=0.00 secs]
+     [Full GC (Last ditch collection) [PSYoungGen: 0K->0K(468480K)] [ParOldGen: 176K->176K(2796544K)] 176K->176K(3265024K), [Metaspace: 1801K->1801K(1056768K)], 0.0023212 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]
+     Error occurred during initialization of VM
+     java.lang.OutOfMemoryError: Metaspace
+     <<no stack trace available>>
+
+     [
      *
      * 99998
      99999
